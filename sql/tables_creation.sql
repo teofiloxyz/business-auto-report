@@ -1,6 +1,6 @@
 CREATE TABLE products_dim (
     product_id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     unit_price REAL NOT NULL
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE sales_fact (
 
 CREATE TABLE expenses_categories_dim (
     category_id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE expenses_fact (
