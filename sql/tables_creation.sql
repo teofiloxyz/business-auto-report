@@ -20,8 +20,7 @@ CREATE TABLE expenses_categories_dim (
 CREATE TABLE expenses_fact (
     expense_id INTEGER PRIMARY KEY,
     date DATE NOT NULL,
-    category_id TEXT UNIQUE NOT NULL,
+    category_id INTEGER NOT NULL,
     amount REAL NOT NULL,
-    description TEXT NOT NULL,
     FOREIGN KEY (category_id) REFERENCES expenses_categories_dim(category_id)
 );
