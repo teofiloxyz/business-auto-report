@@ -52,3 +52,25 @@ class DataManager:
             FROM sales_fact
         """
         return self.db.fetch_result(query)[0]
+
+    def get_month_overview(self, year_month: str) -> Dict[str, float]:
+        sales = self._get_total_sales(year_month)
+        expenses = self._get_total_expenses(year_month)
+        return {"sales": sales, "expenses": expenses}
+
+    def _get_total_sales(self, year_month: str) -> float:
+        query = f"""
+            SELECT SUM(sales_fact.quantity * products_dim.unit_price) AS total_sales
+            FROM sales_fact
+            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE strftime('%Y-%m', sales_fact.date) = '{year_month}'
+        """
+        return self.db.fetch_result(query)[0]
+
+    def _get_total_expenses(self, year_month: str) -> float:
+        query = f"""
+            SELECT SUM(amount) AS total_expenses
+            FROM expenses_fact
+            WHERE strftime('%Y-%m', date) = '{year_month}'
+        """
+        return self.db.fetch_result(query)[0]
