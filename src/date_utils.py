@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from typing import Tuple, List
@@ -17,3 +18,9 @@ class DateUtils:
         current_ym = datetime.strptime(year_month, "%Y-%m")
         next_ym = current_ym + relativedelta(months=1)
         return next_ym.strftime("%Y-%m")
+
+    def get_month_name(self, month_num: int) -> str:
+        try:
+            return calendar.month_name[month_num]
+        except (IndexError, KeyError):
+            return "Invalid month number..."
