@@ -15,8 +15,8 @@ class BusinessAutoReport:
         print(f"Generating report for {year_month}...")
         pdf_rep = PDFReport(pdf_path, year_month)
 
-        monthly_ovr = self.dm.get_monthly_overview(year_month)
-        pdf_rep.add_monthly_overview(monthly_ovr)
+        month_ovr = self.dm.get_month_overview(year_month)
+        pdf_rep.add_month_overview(month_ovr)
         homologous_pf = self.dm.get_homologous_performance(year_month)
         pdf_rep.add_homologous_performance(homologous_pf)
         in_chain_pf = self.dm.get_in_chain_performance(year_month)
