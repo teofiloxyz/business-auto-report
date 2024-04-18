@@ -13,7 +13,7 @@ class BusinessAutoReport:
             year_month = self._choose_year_month()
 
         print(f"Generating report for {year_month}...")
-        pdf_rep = PDFReport(pdf_path, year_month)
+        pdf_rep = PDFReport(year_month)
 
         month_ovr = self.dm.get_month_overview(year_month)
         pdf_rep.add_month_overview(month_ovr)
