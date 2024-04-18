@@ -90,3 +90,17 @@ class DataManager:
         previous = df.iloc[:-1].mean()
         current = df.iloc[-1]
         return (current - previous) / previous * 100
+
+    def get_in_chain_performance(self, year_month: str) -> float:
+        # add expenses in the future
+        previous_ym = self.date_utils.get_previous_year_month(year_month)
+        query = f"""
+            SELECT SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
+            FROM sales_fact
+            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE strftime('%Y-%m', date) IN ('{year_month}', '{previous_ym}')
+        """
+        df = self.db.fetch_df_from_db(query)
+        previous = df.iloc[0]
+        current = df.iloc[-1]
+        return (current - previous) / previous * 100
