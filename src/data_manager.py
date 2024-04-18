@@ -74,3 +74,19 @@ class DataManager:
             WHERE strftime('%Y-%m', date) = '{year_month}'
         """
         return self.db.fetch_result(query)[0]
+
+    def get_homologous_performance(self, year_month: str) -> float:
+        # add expenses in the future
+        year, month = self.date_utils.decompose_year_month(year_month)
+        query = f"""
+            SELECT SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
+            FROM sales_fact
+            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE strftime('%Y-%m', date) >= '{year-3}-{month:02d}'
+            AND strftime('%Y-%m', date) <= '{year_month}'
+            AND strftime('%Y-%m', date) = '{month:02d}'
+        """
+        df = self.db.fetch_df_from_db(query)
+        previous = df.iloc[:-1].mean()
+        current = df.iloc[-1]
+        return (current - previous) / previous * 100
