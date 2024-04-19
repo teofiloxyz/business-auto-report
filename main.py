@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from .src.business_auto_report import BusinessAutoReport
+from src.business_auto_report import BusinessAutoReport
 
 
 def main() -> None:
