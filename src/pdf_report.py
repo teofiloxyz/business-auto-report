@@ -5,7 +5,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 import sys
 from typing import Dict
 
-from date_utils import DateUtils
+from .date_utils import DateUtils
 
 SCR_PATH = os.path.dirname(sys.argv[0])
 

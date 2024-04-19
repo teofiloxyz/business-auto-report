@@ -5,7 +5,7 @@ import sqlite3
 import sys
 from typing import Any, Dict
 
-from date_utils import DateUtils
+from .date_utils import DateUtils
 
 SCR_PATH = os.path.dirname(sys.argv[0])
 

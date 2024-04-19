@@ -1,7 +1,7 @@
 from typing import Optional
 
-from data_manager import DataManager
-from pdf_report import PDFReport
+from .data_manager import DataManager
+from .pdf_report import PDFReport
 
 
 class BusinessAutoReport:
