@@ -56,7 +56,12 @@ class DataManager:
     def get_month_overview(self, year_month: str) -> Dict[str, float]:
         sales = self._get_total_sales(year_month)
         expenses = self._get_total_expenses(year_month)
-        return {"sales": sales, "expenses": expenses}
+        income_before_taxes = sales - expenses
+        return {
+            "sales": sales,
+            "expenses": expenses,
+            "IBT": income_before_taxes,
+        }
 
     def _get_total_sales(self, year_month: str) -> float:
         query = f"""
