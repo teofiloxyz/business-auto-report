@@ -1,6 +1,8 @@
 import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 import sys
 from typing import Dict
@@ -59,6 +61,7 @@ class TextReport:
             title="Business Report",
             pagesize=(page_width_pixels, page_height_pixels),
         )
+        self._load_carlito_font()
         self.text_styles = self._get_text_styles()
         self.flowables = []
 
@@ -74,6 +77,12 @@ class TextReport:
 
     def generate(self) -> None:
         self.doc.build(self.flowables)
+
+    def _load_carlito_font(self) -> None:
+        carlito_path = "/usr/share/fonts/carlito/Carlito-Regular.ttf"
+        carlitob_path = "/usr/share/fonts/carlito/Carlito-Bold.ttf"
+        pdfmetrics.registerFont(TTFont("Carlito", carlito_path))
+        pdfmetrics.registerFont(TTFont("Carlito Bold", carlitob_path))
 
     def _get_text_styles(self) -> Dict[str, ParagraphStyle]:
         return {
