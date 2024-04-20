@@ -40,11 +40,14 @@ class PDFReport:
         )
         self.text.add_paragraph(paragraph)
 
-    def add_in_chain_performance(self, in_chain_pf: float) -> None:
+    def add_in_chain_performance(self, in_chain_pf: Dict[str, float]) -> None:
         paragraph = (
-            "The total sales' in-chain performance this month "
-            f"was {in_chain_pf:.2f}%."
+            f"This month total sales performed {in_chain_pf['sales']:.2f}%, "
+            f"total expenses {in_chain_pf['expenses']:.2f}%, "
+            f"and income before taxes {in_chain_pf['IBT']:.2f}%, "
+            "compared to the previous month."
         )
+
         self.text.add_paragraph(paragraph)
 
     def generate(self) -> None:

@@ -131,9 +131,26 @@ class DataManager:
         previous = df.iloc[:-1][column].mean()
         return ((current - previous) / previous) * 100
 
-    def get_in_chain_performance(self, year_month: str) -> float:
-        # add expenses in the future
+    def get_in_chain_performance(self, year_month: str) -> Dict[str, float]:
         previous_ym = self.date_utils.get_previous_year_month(year_month)
+        df_sales = self._get_in_chain_sales_df(year_month, previous_ym)
+        df_expenses = self._get_in_chain_expenses_df(year_month, previous_ym)
+        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["average_daily_ibt"] = (
+            df["average_daily_sales"] - df["average_daily_expenses"]
+        )
+        pf_sales = self._get_in_chain_metric(df, "average_daily_sales")
+        pf_expenses = self._get_in_chain_metric(df, "average_daily_expenses")
+        pf_ibt = self._get_in_chain_metric(df, "average_daily_ibt")
+        return {
+            "sales": pf_sales,
+            "expenses": pf_expenses,
+            "IBT": pf_ibt,
+        }
+
+    def _get_in_chain_sales_df(
+        self, year_month: str, previous_ym: str
+    ) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
             SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
@@ -142,8 +159,21 @@ class DataManager:
             WHERE strftime('%Y-%m', date) IN ('{year_month}', '{previous_ym}')
             GROUP by year_month
         """
-        df = self.db.fetch_df_from_db(query)
-        print(df)
-        previous = df.iloc[0]["average_daily_sales"]
-        current = df.iloc[-1]["average_daily_sales"]
-        return (current - previous) / previous * 100
+        return self.db.fetch_df_from_db(query)
+
+    def _get_in_chain_expenses_df(
+        self, year_month: str, previous_ym: str
+    ) -> pd.DataFrame:
+        query = f"""
+            SELECT strftime('%Y-%m', date) AS year_month,
+            SUM(amount) / COUNT(DISTINCT date) AS average_daily_expenses
+            FROM expenses_fact
+            WHERE strftime('%Y-%m', date) IN ('{year_month}', '{previous_ym}')
+            GROUP by year_month
+        """
+        return self.db.fetch_df_from_db(query)
+
+    def _get_in_chain_metric(self, df: pd.DataFrame, column: str) -> float:
+        current = df.iloc[-1][column]
+        previous = df.iloc[0][column]
+        return ((current - previous) / previous) * 100
