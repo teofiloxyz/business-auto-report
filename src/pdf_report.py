@@ -29,9 +29,13 @@ class PDFReport:
         )
         self.text.add_paragraph(paragraph)
 
-    def add_homologous_performance(self, homologous_pf: float) -> None:
+    def add_homologous_performance(
+        self, homologous_pf: Dict[str, float]
+    ) -> None:
         paragraph = (
-            f"The total sales this month performed {homologous_pf:.2f}% "
+            f"This month total sales performed {homologous_pf['sales']:.2f}%, "
+            f"total expenses {homologous_pf['expenses']:.2f}%, "
+            f"and income before taxes {homologous_pf['IBT']:.2f}%, "
             "compared to the average of the previous three years."
         )
         self.text.add_paragraph(paragraph)
