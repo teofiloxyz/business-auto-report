@@ -87,6 +87,11 @@ class DataManager:
         df_sales = self._get_homologous_sales_df(year, month)
         df_expenses = self._get_homologous_expenses_df(year, month)
         df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["num_days"] = df["year_month"].apply(
+            lambda x: self.date_utils.get_num_days(x)
+        )
+        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
+        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
         df["average_daily_ibt"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
@@ -102,7 +107,7 @@ class DataManager:
     def _get_homologous_sales_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
+            SUM(unit_price * quantity) AS total_sales
             FROM sales_fact
             LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
             WHERE strftime('%Y', date) >= '{year-3}'
@@ -117,7 +122,7 @@ class DataManager:
     ) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(amount) / COUNT(DISTINCT date) AS average_daily_expenses
+            SUM(amount) AS total_expenses
             FROM expenses_fact
             WHERE strftime('%Y', date) >= '{year-3}'
             AND strftime('%Y', date) <= '{year}'
@@ -136,6 +141,11 @@ class DataManager:
         df_sales = self._get_in_chain_sales_df(year_month, previous_ym)
         df_expenses = self._get_in_chain_expenses_df(year_month, previous_ym)
         df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["num_days"] = df["year_month"].apply(
+            lambda x: self.date_utils.get_num_days(x)
+        )
+        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
+        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
         df["average_daily_ibt"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
@@ -153,7 +163,7 @@ class DataManager:
     ) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
+            SUM(unit_price * quantity) AS total_sales
             FROM sales_fact
             LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
             WHERE strftime('%Y-%m', date) IN ('{year_month}', '{previous_ym}')
@@ -166,7 +176,7 @@ class DataManager:
     ) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(amount) / COUNT(DISTINCT date) AS average_daily_expenses
+            SUM(amount) AS total_expenses
             FROM expenses_fact
             WHERE strftime('%Y-%m', date) IN ('{year_month}', '{previous_ym}')
             GROUP by year_month
@@ -183,6 +193,11 @@ class DataManager:
         df_sales = self._get_homologous_sales_df(year, month)
         df_expenses = self._get_homologous_expenses_df(year, month)
         df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["num_days"] = df["year_month"].apply(
+            lambda x: self.date_utils.get_num_days(x)
+        )
+        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
+        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
         df["average_daily_ibt"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
@@ -193,6 +208,11 @@ class DataManager:
         df_sales = self._get_12_months_sales_df(year, month)
         df_expenses = self._get_12_months_expenses_df(year, month)
         df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["num_days"] = df["year_month"].apply(
+            lambda x: self.date_utils.get_num_days(x)
+        )
+        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
+        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
         df["average_daily_ibt"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
@@ -201,7 +221,7 @@ class DataManager:
     def _get_12_months_sales_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
+            SUM(unit_price * quantity) AS total_sales
             FROM sales_fact
             LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
             WHERE strftime('%Y-%m', date) > '{year-1}-{month:02d}'
@@ -213,7 +233,7 @@ class DataManager:
     def _get_12_months_expenses_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
             SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(amount) / COUNT(DISTINCT date) AS average_daily_expenses
+            SUM(amount) AS total_expenses
             FROM expenses_fact
             WHERE strftime('%Y-%m', date) > '{year-1}-{month:02d}'
             AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
