@@ -86,22 +86,13 @@ class DataManager:
         year, month = self.date_utils.decompose_year_month(year_month)
         df_sales = self._get_homologous_sales_df(year, month)
         df_expenses = self._get_homologous_expenses_df(year, month)
-        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
-        df["num_days"] = df["year_month"].apply(
-            lambda x: self.date_utils.get_num_days(x)
-        )
-        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
-        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
-        df["average_daily_ibt"] = (
-            df["average_daily_sales"] - df["average_daily_expenses"]
-        )
-        pf_sales = self._get_homologous_metric(df, "average_daily_sales")
-        pf_expenses = self._get_homologous_metric(df, "average_daily_expenses")
-        pf_ibt = self._get_homologous_metric(df, "average_daily_ibt")
+        df = self._get_daily_averages_df(df_sales, df_expenses)
         return {
-            "sales": pf_sales,
-            "expenses": pf_expenses,
-            "IBT": pf_ibt,
+            "sales": self._get_homologous_metric(df, "average_daily_sales"),
+            "expenses": self._get_homologous_metric(
+                df, "average_daily_expenses"
+            ),
+            "IBT": self._get_homologous_metric(df, "average_daily_ibt"),
         }
 
     def _get_homologous_sales_df(self, year: int, month: int) -> pd.DataFrame:
@@ -131,16 +122,10 @@ class DataManager:
         """
         return self.db.fetch_df_from_db(query)
 
-    def _get_homologous_metric(self, df: pd.DataFrame, column: str) -> float:
-        current = df.iloc[-1][column]
-        previous = df.iloc[:-1][column].mean()
-        return ((current - previous) / previous) * 100
-
-    def get_in_chain_performance(self, year_month: str) -> Dict[str, float]:
-        year, month = self.date_utils.decompose_year_month(year_month)
-        df_sal = self._get_12_months_sales_df(year, month).tail(2).copy()
-        df_exp = self._get_12_months_expenses_df(year, month).tail(2).copy()
-        df = pd.merge(df_sal, df_exp, on="year_month", how="left")
+    def _get_daily_averages_df(
+        self, df_sales: pd.DataFrame, df_expenses: pd.DataFrame
+    ) -> pd.DataFrame:
+        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
         df["num_days"] = df["year_month"].apply(
             lambda x: self.date_utils.get_num_days(x)
         )
@@ -149,14 +134,22 @@ class DataManager:
         df["average_daily_ibt"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
-        print(df)
-        pf_sales = self._get_in_chain_metric(df, "average_daily_sales")
-        pf_expenses = self._get_in_chain_metric(df, "average_daily_expenses")
-        pf_ibt = self._get_in_chain_metric(df, "average_daily_ibt")
+        return df
+
+    def _get_homologous_metric(self, df: pd.DataFrame, column: str) -> float:
+        current = df.iloc[-1][column]
+        previous = df.iloc[:-1][column].mean()
+        return ((current - previous) / previous) * 100
+
+    def get_in_chain_performance(self, year_month: str) -> Dict[str, float]:
+        year, month = self.date_utils.decompose_year_month(year_month)
+        df_sales = self._get_12_months_sales_df(year, month)
+        df_expenses = self._get_12_months_expenses_df(year, month)
+        df = self._get_daily_averages_df(df_sales, df_expenses).tail(2).copy()
         return {
-            "sales": pf_sales,
-            "expenses": pf_expenses,
-            "IBT": pf_ibt,
+            "sales": self._get_in_chain_metric(df, "average_daily_sales"),
+            "expenses": self._get_in_chain_metric(df, "average_daily_expenses"),
+            "IBT": self._get_in_chain_metric(df, "average_daily_ibt"),
         }
 
     def _get_12_months_sales_df(self, year: int, month: int) -> pd.DataFrame:
@@ -191,28 +184,10 @@ class DataManager:
         year, month = self.date_utils.decompose_year_month(year_month)
         df_sales = self._get_homologous_sales_df(year, month)
         df_expenses = self._get_homologous_expenses_df(year, month)
-        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
-        df["num_days"] = df["year_month"].apply(
-            lambda x: self.date_utils.get_num_days(x)
-        )
-        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
-        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
-        df["average_daily_ibt"] = (
-            df["average_daily_sales"] - df["average_daily_expenses"]
-        )
-        return df
+        return self._get_daily_averages_df(df_sales, df_expenses)
 
     def get_12_months_df(self, year_month: str) -> pd.DataFrame:
         year, month = self.date_utils.decompose_year_month(year_month)
         df_sales = self._get_12_months_sales_df(year, month)
         df_expenses = self._get_12_months_expenses_df(year, month)
-        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
-        df["num_days"] = df["year_month"].apply(
-            lambda x: self.date_utils.get_num_days(x)
-        )
-        df["average_daily_sales"] = df["total_sales"] / df["num_days"]
-        df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
-        df["average_daily_ibt"] = (
-            df["average_daily_sales"] - df["average_daily_expenses"]
-        )
-        return df
+        return self._get_daily_averages_df(df_sales, df_expenses)
