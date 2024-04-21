@@ -56,6 +56,8 @@ class PDFReport:
         self.text_report.add_paragraph(paragraph)
 
     def generate_report(self, charts_paths: List[str]) -> None:
+        paragraph = "Please, take a look at the charts in the next pages."
+        self.text_report.add_paragraph(paragraph)
         self.text_report.generate()
         self._append_charts_to_report(charts_paths)
 
