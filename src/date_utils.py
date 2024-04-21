@@ -19,6 +19,10 @@ class DateUtils:
         next_ym = current_ym + relativedelta(months=1)
         return next_ym.strftime("%Y-%m")
 
+    def get_num_days(self, year_month: str) -> int:
+        year, month = self.decompose_year_month(year_month)
+        return calendar.monthrange(year, month)[1]
+
     def get_month_name(self, month_num: int) -> str:
         try:
             return calendar.month_name[month_num]
