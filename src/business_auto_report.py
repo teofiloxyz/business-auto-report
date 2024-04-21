@@ -30,6 +30,9 @@ class BusinessAutoReport:
         charts_paths.append(self.ch.get_homologous_daily_expenses_chart(df_hom))
         charts_paths.append(self.ch.get_homologous_daily_ibt_chart(df_hom))
 
+        df_12m = self.dm.get_12_months_df(year_month)
+        charts_paths.append(self.ch.get_12_months_daily_sales_chart(df_12m))
+
         pdf_rep.generate_report(charts_paths)
 
     def _choose_year_month(self) -> str:

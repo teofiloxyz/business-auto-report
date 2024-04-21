@@ -187,3 +187,36 @@ class DataManager:
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
         return df
+
+    def get_12_months_df(self, year_month: str) -> pd.DataFrame:
+        year, month = self.date_utils.decompose_year_month(year_month)
+        df_sales = self._get_12_months_sales_df(year, month)
+        df_expenses = self._get_12_months_expenses_df(year, month)
+        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["average_daily_ibt"] = (
+            df["average_daily_sales"] - df["average_daily_expenses"]
+        )
+        return df
+
+    def _get_12_months_sales_df(self, year: int, month: int) -> pd.DataFrame:
+        query = f"""
+            SELECT strftime('%Y-%m', date) AS year_month,
+            SUM(unit_price * quantity) / COUNT(DISTINCT date) AS average_daily_sales
+            FROM sales_fact
+            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE strftime('%Y-%m', date) > '{year-1}-{month:02d}'
+            AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
+            GROUP by year_month
+        """
+        return self.db.fetch_df_from_db(query)
+
+    def _get_12_months_expenses_df(self, year: int, month: int) -> pd.DataFrame:
+        query = f"""
+            SELECT strftime('%Y-%m', date) AS year_month,
+            SUM(amount) / COUNT(DISTINCT date) AS average_daily_expenses
+            FROM expenses_fact
+            WHERE strftime('%Y-%m', date) > '{year-1}-{month:02d}'
+            AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
+            GROUP by year_month
+        """
+        return self.db.fetch_df_from_db(query)
