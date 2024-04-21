@@ -83,10 +83,7 @@ class DataManager:
     def get_homologous_performance(self, year_month: str) -> Dict[str, float]:
         """Didn't refactor the SQL queries for readability reasons"""
 
-        year, month = self.date_utils.decompose_year_month(year_month)
-        df_sales = self._get_homologous_sales_df(year, month)
-        df_expenses = self._get_homologous_expenses_df(year, month)
-        df = self._get_daily_averages_df(df_sales, df_expenses)
+        df = self.get_homologous_df(year_month)
         return {
             "sales": self._get_homologous_metric(df, "average_daily_sales"),
             "expenses": self._get_homologous_metric(
@@ -94,6 +91,12 @@ class DataManager:
             ),
             "IBT": self._get_homologous_metric(df, "average_daily_ibt"),
         }
+
+    def get_homologous_df(self, year_month: str) -> pd.DataFrame:
+        year, month = self.date_utils.decompose_year_month(year_month)
+        df_sales = self._get_homologous_sales_df(year, month)
+        df_expenses = self._get_homologous_expenses_df(year, month)
+        return self._get_daily_averages_df(df_sales, df_expenses)
 
     def _get_homologous_sales_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
@@ -142,15 +145,18 @@ class DataManager:
         return ((current - previous) / previous) * 100
 
     def get_in_chain_performance(self, year_month: str) -> Dict[str, float]:
-        year, month = self.date_utils.decompose_year_month(year_month)
-        df_sales = self._get_12_months_sales_df(year, month)
-        df_expenses = self._get_12_months_expenses_df(year, month)
-        df = self._get_daily_averages_df(df_sales, df_expenses).tail(2).copy()
+        df = self.get_12_months_df(year_month).tail(2).copy()
         return {
             "sales": self._get_in_chain_metric(df, "average_daily_sales"),
             "expenses": self._get_in_chain_metric(df, "average_daily_expenses"),
             "IBT": self._get_in_chain_metric(df, "average_daily_ibt"),
         }
+
+    def get_12_months_df(self, year_month: str) -> pd.DataFrame:
+        year, month = self.date_utils.decompose_year_month(year_month)
+        df_sales = self._get_12_months_sales_df(year, month)
+        df_expenses = self._get_12_months_expenses_df(year, month)
+        return self._get_daily_averages_df(df_sales, df_expenses)
 
     def _get_12_months_sales_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
@@ -179,15 +185,3 @@ class DataManager:
         current = df.iloc[-1][column]
         previous = df.iloc[0][column]
         return ((current - previous) / previous) * 100
-
-    def get_homologous_df(self, year_month: str) -> pd.DataFrame:
-        year, month = self.date_utils.decompose_year_month(year_month)
-        df_sales = self._get_homologous_sales_df(year, month)
-        df_expenses = self._get_homologous_expenses_df(year, month)
-        return self._get_daily_averages_df(df_sales, df_expenses)
-
-    def get_12_months_df(self, year_month: str) -> pd.DataFrame:
-        year, month = self.date_utils.decompose_year_month(year_month)
-        df_sales = self._get_12_months_sales_df(year, month)
-        df_expenses = self._get_12_months_expenses_df(year, month)
-        return self._get_daily_averages_df(df_sales, df_expenses)
