@@ -78,13 +78,10 @@ class PDFReport:
 
 class TextReport:
     def __init__(self, text_pdf_path: str) -> None:
-        page_width, page_height = letter
-        page_width_pixels = page_width * 230 / 72
-        page_height_pixels = page_height * 230 / 72
         self.doc = SimpleDocTemplate(
             text_pdf_path,
             title="Business Report",
-            pagesize=(page_width_pixels, page_height_pixels),
+            pagesize=letter,
         )
         self._load_carlito_font()
         self.text_styles = self._get_text_styles()
@@ -93,12 +90,12 @@ class TextReport:
     def add_title(self, title_text: str) -> None:
         title = Paragraph(title_text, self.text_styles["title"])
         self.flowables.append(title)
-        self.flowables.append(Spacer(1, 200))
+        self.flowables.append(Spacer(1, 60))
 
     def add_paragraph(self, paragraph_text: str) -> None:
         paragraph = Paragraph(paragraph_text, self.text_styles["paragraph"])
         self.flowables.append(paragraph)
-        self.flowables.append(Spacer(1, 35))
+        self.flowables.append(Spacer(1, 8))
 
     def generate(self) -> None:
         self.doc.build(self.flowables)
@@ -112,9 +109,9 @@ class TextReport:
     def _get_text_styles(self) -> Dict[str, ParagraphStyle]:
         return {
             "title": ParagraphStyle(
-                name="Title", fontSize=120, fontName="Carlito Bold", alignment=1
+                name="Title", fontSize=34, fontName="Carlito Bold", alignment=1
             ),
             "paragraph": ParagraphStyle(
-                name="Paragraph", fontSize=70, fontName="Carlito", leading=75
+                name="Paragraph", fontSize=20, fontName="Carlito", leading=22
             ),
         }
