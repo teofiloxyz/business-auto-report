@@ -77,6 +77,24 @@ class Charts:
         self._config_chart_tags(title=title)
         return self._save_chart()
 
+    def get_12_months_daily_expenses_chart(self, df: pd.DataFrame) -> str:
+        self._config_chart_theme()
+        sns.barplot(
+            data=df,
+            x="year_month",
+            y="average_daily_expenses",
+            palette="spring",
+        )
+        past_11_months_average = df["average_daily_expenses"][:-1].mean()
+        plt.axhline(
+            y=past_11_months_average,
+            color="cyan",
+            label=f"Past 11 months average: € {past_11_months_average:,.2f}",
+        )
+        title = "Month + Previous 11 Months of Daily Expenses Average"
+        self._config_chart_tags(title=title)
+        return self._save_chart()
+
     def _config_chart_theme(self, soft_grid: bool = False) -> None:
         plt.figure(figsize=(11, 8.5))
         rc = {"grid.alpha": 0.2 if soft_grid else 1}

@@ -32,6 +32,7 @@ class BusinessAutoReport:
 
         df_12m = self.dm.get_12_months_df(year_month)
         charts_paths.append(self.ch.get_12_months_daily_sales_chart(df_12m))
+        charts_paths.append(self.ch.get_12_months_daily_expenses_chart(df_12m))
 
         pdf_rep.generate_report(charts_paths)
 
