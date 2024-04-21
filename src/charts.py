@@ -11,7 +11,7 @@ class Charts:
     def __init__(self) -> None:
         self.date_utils = DateUtils()
 
-    def get_daily_sales_homologous_chart(self, df: pd.DataFrame) -> str:
+    def get_homologous_daily_sales_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
         sns.barplot(
             data=df, x="year_month", y="average_daily_sales", palette="winter"
@@ -26,7 +26,7 @@ class Charts:
         self._config_chart_tags(title=title)
         return self._save_chart()
 
-    def get_daily_expenses_homologous_chart(self, df: pd.DataFrame) -> str:
+    def get_homologous_daily_expenses_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
         sns.barplot(
             data=df,
@@ -41,6 +41,24 @@ class Charts:
             label=f"Past 3 months average: € {past_3_months_average:,.2f}",
         )
         title = "Month + Previous 3 Homologous Months of Daily Expenses Average"
+        self._config_chart_tags(title=title)
+        return self._save_chart()
+
+    def get_homologous_daily_ibt_chart(self, df: pd.DataFrame) -> str:
+        self._config_chart_theme()
+        sns.barplot(
+            data=df,
+            x="year_month",
+            y="average_daily_ibt",
+            palette="summer",
+        )
+        past_3_months_average = df["average_daily_ibt"][:-1].mean()
+        plt.axhline(
+            y=past_3_months_average,
+            color="cyan",
+            label=f"Past 3 months average: € {past_3_months_average:,.2f}",
+        )
+        title = "Month + Previous 3 Homologous Months of Daily Income Before Taxes Average"
         self._config_chart_tags(title=title)
         return self._save_chart()
 
