@@ -27,6 +27,7 @@ class BusinessAutoReport:
         charts_paths = []
         df_hom = self.dm.get_homologous_df(year_month)
         charts_paths.append(self.ch.get_daily_sales_homologous_chart(df_hom))
+        charts_paths.append(self.ch.get_daily_expenses_homologous_chart(df_hom))
 
         pdf_rep.generate_report(charts_paths)
 

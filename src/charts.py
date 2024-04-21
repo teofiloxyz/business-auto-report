@@ -16,13 +16,31 @@ class Charts:
         sns.barplot(
             data=df, x="year_month", y="average_daily_sales", palette="winter"
         )
-        past_3_months_average = round(df["average_daily_sales"][:-1].mean(), 2)
+        past_3_months_average = df["average_daily_sales"][:-1].mean()
         plt.axhline(
             y=past_3_months_average,
             color="cyan",
-            label=f"Past 3 months average: {past_3_months_average}",
+            label=f"Past 3 months average: € {past_3_months_average:,.2f}",
         )
         title = "Month + Previous 3 Homologous Months of Daily Sales Average"
+        self._config_chart_tags(title=title)
+        return self._save_chart()
+
+    def get_daily_expenses_homologous_chart(self, df: pd.DataFrame) -> str:
+        self._config_chart_theme()
+        sns.barplot(
+            data=df,
+            x="year_month",
+            y="average_daily_expenses",
+            palette="spring",
+        )
+        past_3_months_average = df["average_daily_expenses"][:-1].mean()
+        plt.axhline(
+            y=past_3_months_average,
+            color="cyan",
+            label=f"Past 3 months average: € {past_3_months_average:,.2f}",
+        )
+        title = "Month + Previous 3 Homologous Months of Daily Expenses Average"
         self._config_chart_tags(title=title)
         return self._save_chart()
 
