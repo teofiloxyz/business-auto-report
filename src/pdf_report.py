@@ -1,5 +1,3 @@
-import fitz
-
 import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
@@ -9,6 +7,8 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 import sys
 import tempfile
 from typing import Dict, List
+
+import fitz
 
 from .date_utils import DateUtils
 
