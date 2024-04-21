@@ -1,11 +1,13 @@
 from typing import Optional
 
+from .charts import Charts
 from .data_manager import DataManager
 from .pdf_report import PDFReport
 
 
 class BusinessAutoReport:
     def __init__(self) -> None:
+        self.ch = Charts()
         self.dm = DataManager()
 
     def generate_report(self, year_month: Optional[str] = None) -> None:
@@ -22,7 +24,11 @@ class BusinessAutoReport:
         in_chain_pf = self.dm.get_in_chain_performance(year_month)
         pdf_rep.add_in_chain_performance(in_chain_pf)
 
-        pdf_rep.generate()
+        charts_paths = []
+        df_hom = self.dm.get_homologous_df(year_month)
+        charts_paths.append(self.ch.get_daily_sales_homologous_chart(df_hom))
+
+        pdf_rep.generate_report(charts_paths)
 
     def _choose_year_month(self) -> str:
         first_ym = self.dm.get_first_db_year_month()
@@ -36,7 +42,7 @@ class BusinessAutoReport:
             except ValueError:
                 print("Invalid input...")
                 continue
-            year_month = f"{year:04d}-{month:02d}"
+            year_month = f"{year}-{month:02d}"
             if first_ym <= year_month <= lastest_ym:
                 return year_month
             print(f"Invalid year-month. Try between {first_ym} & {lastest_ym}")

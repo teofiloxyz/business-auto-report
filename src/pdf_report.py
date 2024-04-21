@@ -1,3 +1,5 @@
+import fitz
+
 import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
@@ -5,7 +7,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 import sys
-from typing import Dict
+import tempfile
+from typing import Dict, List
 
 from .date_utils import DateUtils
 
@@ -17,9 +20,12 @@ class PDFReport:
         self.date_utils = DateUtils()
         filename = f"generated_report_{year_month}.pdf"
         self.pdf_path = os.path.join(SCR_PATH, f"docs/{filename}")
-        self.text = TextReport(self.pdf_path)
+        self.text_pdf_path = tempfile.NamedTemporaryFile(
+            suffix=".pdf", delete=False
+        ).name
+        self.text_report = TextReport(self.text_pdf_path)
         title = self._get_title(year_month)
-        self.text.add_title(title)
+        self.text_report.add_title(title)
 
     def add_month_overview(self, month_ovr: Dict[str, float]) -> None:
         paragraph = (
@@ -27,7 +33,7 @@ class PDFReport:
             f"and incurred € {month_ovr['expenses']:,.2f} in expenses, "
             f"resulting in an income before taxes of € {month_ovr['IBT']:,.2f}."
         )
-        self.text.add_paragraph(paragraph)
+        self.text_report.add_paragraph(paragraph)
 
     def add_homologous_performance(
         self, homologous_pf: Dict[str, float]
@@ -38,7 +44,7 @@ class PDFReport:
             f"and income before taxes {homologous_pf['IBT']:.2f}%, "
             "compared to the average of the previous three years."
         )
-        self.text.add_paragraph(paragraph)
+        self.text_report.add_paragraph(paragraph)
 
     def add_in_chain_performance(self, in_chain_pf: Dict[str, float]) -> None:
         paragraph = (
@@ -47,25 +53,36 @@ class PDFReport:
             f"and income before taxes {in_chain_pf['IBT']:.2f}%, "
             "compared to the previous month."
         )
+        self.text_report.add_paragraph(paragraph)
 
-        self.text.add_paragraph(paragraph)
-
-    def generate(self) -> None:
-        self.text.generate()
+    def generate_report(self, charts_paths: List[str]) -> None:
+        self.text_report.generate()
+        self._append_charts_to_report(charts_paths)
 
     def _get_title(self, year_month: str) -> str:
         year, month = self.date_utils.decompose_year_month(year_month)
         month_name = self.date_utils.get_month_name(month)
         return f"Report for {month_name} of {year}"
 
+    def _append_charts_to_report(self, charts_paths: List[str]) -> None:
+        text_pdf = fitz.open(self.text_pdf_path)
+        for chart_path in charts_paths:
+            chart_pdf = fitz.open(chart_path)
+            text_pdf.insert_pdf(chart_pdf)
+            chart_pdf.close()
+            os.remove(chart_path)
+        text_pdf.save(self.pdf_path)
+        text_pdf.close()
+        os.remove(self.text_pdf_path)
+
 
 class TextReport:
-    def __init__(self, first_page_path: str) -> None:
+    def __init__(self, text_pdf_path: str) -> None:
         page_width, page_height = letter
         page_width_pixels = page_width * 230 / 72
         page_height_pixels = page_height * 230 / 72
         self.doc = SimpleDocTemplate(
-            first_page_path,
+            text_pdf_path,
             title="Business Report",
             pagesize=(page_width_pixels, page_height_pixels),
         )

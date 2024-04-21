@@ -177,3 +177,13 @@ class DataManager:
         current = df.iloc[-1][column]
         previous = df.iloc[0][column]
         return ((current - previous) / previous) * 100
+
+    def get_homologous_df(self, year_month: str) -> pd.DataFrame:
+        year, month = self.date_utils.decompose_year_month(year_month)
+        df_sales = self._get_homologous_sales_df(year, month)
+        df_expenses = self._get_homologous_expenses_df(year, month)
+        df = pd.merge(df_sales, df_expenses, on="year_month", how="left")
+        df["average_daily_ibt"] = (
+            df["average_daily_sales"] - df["average_daily_expenses"]
+        )
+        return df
