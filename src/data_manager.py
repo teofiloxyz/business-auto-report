@@ -85,11 +85,9 @@ class DataManager:
 
         df = self.get_homologous_df(year_month)
         return {
-            "sales": self._get_homologous_metric(df, "average_daily_sales"),
-            "expenses": self._get_homologous_metric(
-                df, "average_daily_expenses"
-            ),
-            "IBT": self._get_homologous_metric(df, "average_daily_ibt"),
+            "sales": self._get_perf_percentage(df, "average_daily_sales"),
+            "expenses": self._get_perf_percentage(df, "average_daily_expenses"),
+            "IBT": self._get_perf_percentage(df, "average_daily_ibt"),
         }
 
     def get_homologous_df(self, year_month: str) -> pd.DataFrame:
@@ -139,7 +137,7 @@ class DataManager:
         )
         return df
 
-    def _get_homologous_metric(self, df: pd.DataFrame, column: str) -> float:
+    def _get_perf_percentage(self, df: pd.DataFrame, column: str) -> float:
         current = df.iloc[-1][column]
         previous = df.iloc[:-1][column].mean()
         return ((current - previous) / previous) * 100
@@ -147,9 +145,9 @@ class DataManager:
     def get_in_chain_performance(self, year_month: str) -> Dict[str, float]:
         df = self.get_12_months_df(year_month).tail(2).copy()
         return {
-            "sales": self._get_in_chain_metric(df, "average_daily_sales"),
-            "expenses": self._get_in_chain_metric(df, "average_daily_expenses"),
-            "IBT": self._get_in_chain_metric(df, "average_daily_ibt"),
+            "sales": self._get_perf_percentage(df, "average_daily_sales"),
+            "expenses": self._get_perf_percentage(df, "average_daily_expenses"),
+            "IBT": self._get_perf_percentage(df, "average_daily_ibt"),
         }
 
     def get_12_months_df(self, year_month: str) -> pd.DataFrame:
@@ -180,8 +178,3 @@ class DataManager:
             GROUP by year_month
         """
         return self.db.fetch_df_from_db(query)
-
-    def _get_in_chain_metric(self, df: pd.DataFrame, column: str) -> float:
-        current = df.iloc[-1][column]
-        previous = df.iloc[0][column]
-        return ((current - previous) / previous) * 100
