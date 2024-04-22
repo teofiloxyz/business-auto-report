@@ -29,9 +29,14 @@ class PDFReport:
 
     def add_month_overview(self, month_ovr: Dict[str, float]) -> None:
         paragraph = (
-            f"The business made € {month_ovr['sales']:,.2f} in sales this month, "
-            f"and incurred € {month_ovr['expenses']:,.2f} in expenses, "
-            f"resulting in an income before taxes of € {month_ovr['IBT']:,.2f}."
+            f"This month, the business achieved € {month_ovr['sales']:,.2f} "
+            f"in sales and incurred € {month_ovr['expenses']:,.2f} in expenses. "
+            f"With a gross profit of € {month_ovr['gross']:,.2f} "
+            f"({month_ovr['gross_mg']:.2f} % of margin) "
+            f"and EBITDA totaling € {month_ovr['EBITDA']:,.2f} "
+            f"({month_ovr['EBITDA_mg']:.2f} % of margin), "
+            f"the income before taxes amounted to € {month_ovr['IBT']:,.2f} "
+            f"({month_ovr['IBT_mg']:.2f} % of margin). "
         )
         self.text_report.add_paragraph(paragraph)
 

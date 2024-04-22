@@ -59,12 +59,25 @@ class DataManager:
 
     def get_month_overview(self, year_month: str) -> Dict[str, float]:
         sales = self._get_total_sales(year_month)
-        expenses = self._get_total_expenses(year_month)
-        income_before_taxes = sales - expenses
+        df_expenses = self.get_total_expenses_by_category_df(year_month)
+        cogs = df_expenses[df_expenses["category"] == "COGS"][
+            "total_expenses"
+        ].sum()
+        expenses_except_dep_int = df_expenses[
+            ~df_expenses["category"].isin(["Depreciation", "Interest"])
+        ]["total_expenses"].sum()
+        gross_profit = sales - cogs
+        ebitda = sales - expenses_except_dep_int
+        income_before_taxes = sales - df_expenses["total_expenses"].sum()
         return {
             "sales": sales,
-            "expenses": expenses,
+            "expenses": df_expenses["total_expenses"].sum(),
+            "gross": gross_profit,
+            "gross_mg": (gross_profit / sales) * 100,
+            "EBITDA": ebitda,
+            "EBITDA_mg": (ebitda / sales) * 100,
             "IBT": income_before_taxes,
+            "IBT_mg": (income_before_taxes / sales) * 100,
         }
 
     def _get_total_sales(self, year_month: str) -> float:
@@ -80,16 +93,25 @@ class DataManager:
         """
         return self.db.fetch_result(query)[0]
 
-    def _get_total_expenses(self, year_month: str) -> float:
+    def get_total_expenses_by_category_df(
+        self, year_month: str
+    ) -> pd.DataFrame:
         query = f"""
             SELECT
-                SUM(amount) AS total_expenses
+                SUM(amount) AS total_expenses,
+                name AS category
             FROM
                 expenses_fact
+            LEFT JOIN
+                expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
             WHERE
                 strftime('%Y-%m', date) = '{year_month}'
+            GROUP BY
+                category
+            ORDER BY
+                total_expenses DESC
         """
-        return self.db.fetch_result(query)[0]
+        return self.db.fetch_df_from_db(query)
 
     def get_homologous_performance(self, year_month: str) -> Dict[str, float]:
         """Didn't refactor the SQL queries for readability reasons"""
@@ -285,25 +307,5 @@ class DataManager:
                 product
             ORDER BY
                 total_sales DESC
-        """
-        return self.db.fetch_df_from_db(query)
-
-    def _get_total_expenses_by_category_df(
-        self, year_month: str
-    ) -> pd.DataFrame:
-        query = f"""
-            SELECT
-                SUM(amount) AS total_expenses,
-                name AS category
-            FROM
-                expenses_fact
-            LEFT JOIN
-                expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
-            WHERE
-                strftime('%Y-%m', date) = '{year_month}'
-            GROUP BY
-                category
-            ORDER BY
-                total_expenses DESC
         """
         return self.db.fetch_df_from_db(query)
