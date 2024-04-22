@@ -40,16 +40,20 @@ class DataManager:
         self.date_utils = DateUtils()
 
     def get_first_db_year_month(self) -> str:
-        query = f"""
-            SELECT strftime('%Y-%m', MIN(date)) AS year_month
-            FROM sales_fact
+        query = """
+            SELECT
+                strftime('%Y-%m', MIN(date)) AS year_month
+            FROM
+                sales_fact
         """
         return self.db.fetch_result(query)[0]
 
     def get_latest_db_year_month(self) -> str:
-        query = f"""
-            SELECT strftime('%Y-%m', MAX(date)) AS year_month
-            FROM sales_fact
+        query = """
+            SELECT
+                strftime('%Y-%m', MAX(date)) AS year_month
+            FROM
+                sales_fact
         """
         return self.db.fetch_result(query)[0]
 
@@ -65,18 +69,25 @@ class DataManager:
 
     def _get_total_sales(self, year_month: str) -> float:
         query = f"""
-            SELECT SUM(sales_fact.quantity * products_dim.unit_price) AS total_sales
-            FROM sales_fact
-            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
-            WHERE strftime('%Y-%m', sales_fact.date) = '{year_month}'
+            SELECT
+                SUM(quantity * unit_price) AS total_sales
+            FROM
+                sales_fact
+            LEFT JOIN
+                products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE
+                strftime('%Y-%m', date) = '{year_month}'
         """
         return self.db.fetch_result(query)[0]
 
     def _get_total_expenses(self, year_month: str) -> float:
         query = f"""
-            SELECT SUM(amount) AS total_expenses
-            FROM expenses_fact
-            WHERE strftime('%Y-%m', date) = '{year_month}'
+            SELECT
+                SUM(amount) AS total_expenses
+            FROM
+                expenses_fact
+            WHERE
+                strftime('%Y-%m', date) = '{year_month}'
         """
         return self.db.fetch_result(query)[0]
 
@@ -98,14 +109,19 @@ class DataManager:
 
     def _get_homologous_sales_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
-            SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(unit_price * quantity) AS total_sales
-            FROM sales_fact
-            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
-            WHERE strftime('%Y', date) >= '{year-3}'
-            AND strftime('%Y', date) <= '{year}'
-            AND strftime('%m', date) = '{month:02d}'
-            GROUP by year_month
+            SELECT
+                strftime('%Y-%m', date) AS year_month,
+                SUM(unit_price * quantity) AS total_sales
+            FROM
+                sales_fact
+            LEFT JOIN
+                products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE
+                strftime('%Y', date) >= '{year-3}'
+                AND strftime('%Y', date) <= '{year}'
+                AND strftime('%m', date) = '{month:02d}'
+            GROUP BY
+                year_month
         """
         return self.db.fetch_df_from_db(query)
 
@@ -113,13 +129,17 @@ class DataManager:
         self, year: int, month: int
     ) -> pd.DataFrame:
         query = f"""
-            SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(amount) AS total_expenses
-            FROM expenses_fact
-            WHERE strftime('%Y', date) >= '{year-3}'
-            AND strftime('%Y', date) <= '{year}'
-            AND strftime('%m', date) = '{month:02d}'
-            GROUP by year_month
+            SELECT
+                strftime('%Y-%m', date) AS year_month,
+                SUM(amount) AS total_expenses
+            FROM
+                expenses_fact
+            WHERE
+                strftime('%Y', date) >= '{year-3}'
+                AND strftime('%Y', date) <= '{year}'
+                AND strftime('%m', date) = '{month:02d}'
+            GROUP BY
+                year_month
         """
         return self.db.fetch_df_from_db(query)
 
@@ -158,24 +178,33 @@ class DataManager:
 
     def _get_12_months_sales_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
-            SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(unit_price * quantity) AS total_sales
-            FROM sales_fact
-            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
-            WHERE strftime('%Y-%m', date) > '{year-1}-{month:02d}'
-            AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
-            GROUP by year_month
+            SELECT
+                strftime('%Y-%m', date) AS year_month,
+                SUM(unit_price * quantity) AS total_sales
+            FROM
+                sales_fact
+            LEFT JOIN
+                products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE
+                strftime('%Y-%m', date) > '{year-1}-{month:02d}'
+                AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
+            GROUP BY
+                year_month
         """
         return self.db.fetch_df_from_db(query)
 
     def _get_12_months_expenses_df(self, year: int, month: int) -> pd.DataFrame:
         query = f"""
-            SELECT strftime('%Y-%m', date) AS year_month,
-            SUM(amount) AS total_expenses
-            FROM expenses_fact
-            WHERE strftime('%Y-%m', date) > '{year-1}-{month:02d}'
-            AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
-            GROUP by year_month
+            SELECT
+                strftime('%Y-%m', date) AS year_month,
+                SUM(amount) AS total_expenses
+            FROM
+                expenses_fact
+            WHERE
+                strftime('%Y-%m', date) > '{year-1}-{month:02d}'
+                AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
+            GROUP BY
+                year_month
         """
         return self.db.fetch_df_from_db(query)
 
@@ -187,36 +216,51 @@ class DataManager:
 
     def _get_homologous_ytd_sales_df(self, month: int) -> pd.DataFrame:
         query = f"""
-            SELECT strftime('%Y', date) AS year,
-            SUM(unit_price * quantity) AS ytd_total_sales
-            FROM sales_fact
-            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
-            WHERE strftime('%m', date) <= '{month:02d}'
-            AND strftime('%m', date) >= '01'
-            GROUP by year
+            SELECT
+                strftime('%Y', date) AS year,
+                SUM(unit_price * quantity) AS ytd_total_sales
+            FROM
+                sales_fact
+            LEFT JOIN
+                products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE
+                strftime('%m', date) <= '{month:02d}'
+                AND strftime('%m', date) >= '01'
+            GROUP BY
+                year
         """
         return self.db.fetch_df_from_db(query)
 
     def _get_homologous_ytd_expenses_df(self, month: int) -> pd.DataFrame:
         query = f"""
-            SELECT strftime('%Y', date) AS year,
-            SUM(amount) AS ytd_total_expenses
-            FROM expenses_fact
-            WHERE strftime('%m', date) <= '{month:02d}'
-            AND strftime('%m', date) >= '01'
-            GROUP by year
+            SELECT
+                strftime('%Y', date) AS year,
+                SUM(amount) AS ytd_total_expenses
+            FROM
+                expenses_fact
+            WHERE
+                strftime('%m', date) <= '{month:02d}'
+                AND strftime('%m', date) >= '01'
+            GROUP BY
+                year
         """
         return self.db.fetch_df_from_db(query)
 
     def get_total_sales_by_product_df(self, year_month: str) -> pd.DataFrame:
         query = f"""
-            SELECT SUM(unit_price * quantity) AS total_sales,
-            name as product
-            FROM sales_fact
-            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
-            WHERE strftime('%Y-%m', date) = '{year_month}'
-            GROUP by product
-            ORDER BY total_sales DESC
+            SELECT
+                SUM(unit_price * quantity) AS total_sales,
+                name AS product
+            FROM
+                sales_fact
+            LEFT JOIN
+                products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE
+                strftime('%Y-%m', date) = '{year_month}'
+            GROUP BY
+                product
+            ORDER BY
+                total_sales DESC
         """
         return self.db.fetch_df_from_db(query)
 
@@ -224,12 +268,18 @@ class DataManager:
         self, year_month: str
     ) -> pd.DataFrame:
         query = f"""
-            SELECT SUM(amount) AS total_expenses,
-            name as category
-            FROM expenses_fact
-            LEFT JOIN expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
-            WHERE strftime('%Y-%m', date) = '{year_month}'
-            GROUP by category
-            ORDER BY total_expenses DESC
+            SELECT
+                SUM(amount) AS total_expenses,
+                name AS category
+            FROM
+                expenses_fact
+            LEFT JOIN
+                expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
+            WHERE
+                strftime('%Y-%m', date) = '{year_month}'
+            GROUP BY
+                category
+            ORDER BY
+                total_expenses DESC
         """
         return self.db.fetch_df_from_db(query)
