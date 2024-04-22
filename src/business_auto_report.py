@@ -28,12 +28,12 @@ class BusinessAutoReport:
         df_hom = self.dm.get_homologous_df(year_month)
         charts_paths.append(self.ch.get_homologous_daily_sales_chart(df_hom))
         charts_paths.append(self.ch.get_homologous_daily_expenses_chart(df_hom))
-        charts_paths.append(self.ch.get_homologous_daily_ibt_chart(df_hom))
+        charts_paths.append(self.ch.get_homologous_daily_ebt_chart(df_hom))
 
         df_12m = self.dm.get_12_months_df(year_month)
         charts_paths.append(self.ch.get_12_months_daily_sales_chart(df_12m))
         charts_paths.append(self.ch.get_12_months_daily_expenses_chart(df_12m))
-        charts_paths.append(self.ch.get_12_months_daily_ibt_chart(df_12m))
+        charts_paths.append(self.ch.get_12_months_daily_ebt_chart(df_12m))
 
         df_hom_ytd_g = self.dm.get_homologous_ytd_gross_df(year_month)
         charts_paths.append(

@@ -70,7 +70,7 @@ class DataManager:
         ]["total_expenses"].sum()
         gross_profit = sales - cogs
         ebitda = sales - expenses_except_dep_int
-        income_before_taxes = sales - df_expenses["total_expenses"].sum()
+        earnings_before_taxes = sales - df_expenses["total_expenses"].sum()
         return {
             "sales": sales,
             "expenses": df_expenses["total_expenses"].sum(),
@@ -78,8 +78,8 @@ class DataManager:
             "gross_mg": (gross_profit / sales) * 100,
             "EBITDA": ebitda,
             "EBITDA_mg": (ebitda / sales) * 100,
-            "IBT": income_before_taxes,
-            "IBT_mg": (income_before_taxes / sales) * 100,
+            "EBT": earnings_before_taxes,
+            "EBT_mg": (earnings_before_taxes / sales) * 100,
         }
 
     def _get_total_sales(self, year_month: str) -> float:
@@ -122,7 +122,7 @@ class DataManager:
             "expenses": self._get_perf_percentage(df, "average_daily_expenses"),
             "gross": self._get_perf_percentage(df, "average_daily_gross"),
             "EBITDA": self._get_perf_percentage(df, "average_daily_EBITDA"),
-            "IBT": self._get_perf_percentage(df, "average_daily_IBT"),
+            "EBT": self._get_perf_percentage(df, "average_daily_EBT"),
         }
 
     def get_homologous_df(self, year_month: str) -> pd.DataFrame:
@@ -192,7 +192,7 @@ class DataManager:
             - df["average_daily_expenses"]
             + df["average_daily_dep_int"]
         )
-        df["average_daily_IBT"] = (
+        df["average_daily_EBT"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
         return df
@@ -209,7 +209,7 @@ class DataManager:
             "expenses": self._get_perf_percentage(df, "average_daily_expenses"),
             "gross": self._get_perf_percentage(df, "average_daily_gross"),
             "EBITDA": self._get_perf_percentage(df, "average_daily_EBITDA"),
-            "IBT": self._get_perf_percentage(df, "average_daily_IBT"),
+            "EBT": self._get_perf_percentage(df, "average_daily_EBT"),
         }
 
     def get_12_months_df(self, year_month: str) -> pd.DataFrame:

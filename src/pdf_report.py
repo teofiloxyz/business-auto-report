@@ -35,8 +35,8 @@ class PDFReport:
             f"({month_ovr['gross_mg']:.2f}% of margin) "
             f"and EBITDA totaling € {month_ovr['EBITDA']:,.2f} "
             f"({month_ovr['EBITDA_mg']:.2f}% of margin), "
-            f"the income before taxes amounted to € {month_ovr['IBT']:,.2f} "
-            f"({month_ovr['IBT_mg']:.2f}% of margin). "
+            f"the earnings before taxes amounted to € {month_ovr['EBT']:,.2f} "
+            f"({month_ovr['EBT_mg']:.2f}% of margin). "
         )
         self.text_report.add_paragraph(paragraph)
 
@@ -48,7 +48,7 @@ class PDFReport:
             f"total expenses {homologous_pf['expenses']:.2f}%, "
             f"gross profit {homologous_pf['gross']:.2f}%, "
             f"EBITDA {homologous_pf['EBITDA']:.2f}%, "
-            f"and income before taxes {homologous_pf['IBT']:.2f}%, "
+            f"and earnings before taxes {homologous_pf['EBT']:.2f}%, "
             "compared to the average of the previous three years."
         )
         self.text_report.add_paragraph(paragraph)
@@ -59,7 +59,7 @@ class PDFReport:
             f"total expenses {in_chain_pf['expenses']:.2f}%, "
             f"gross profit {in_chain_pf['gross']:.2f}%, "
             f"EBITDA {in_chain_pf['EBITDA']:.2f}%, "
-            f"and income before taxes {in_chain_pf['IBT']:.2f}%, "
+            f"and earnings before taxes {in_chain_pf['EBT']:.2f}%, "
             "compared to the previous month."
         )
         self.text_report.add_paragraph(paragraph)
