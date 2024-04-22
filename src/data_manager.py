@@ -208,11 +208,11 @@ class DataManager:
         """
         return self.db.fetch_df_from_db(query)
 
-    def get_homologous_ytd_df(self, year_month: str) -> pd.DataFrame:
+    def get_homologous_ytd_gross_df(self, year_month: str) -> pd.DataFrame:
         _, month = self.date_utils.decompose_year_month(year_month)
         df_sales = self._get_homologous_ytd_sales_df(month)
-        df_expenses = self._get_homologous_ytd_expenses_df(month)
-        return pd.merge(df_sales, df_expenses, on="year", how="left")
+        df_cogs = self._get_homologous_ytd_cogs_df(month)
+        return pd.merge(df_sales, df_cogs, on="year", how="left")
 
     def _get_homologous_ytd_sales_df(self, month: int) -> pd.DataFrame:
         query = f"""
@@ -230,6 +230,30 @@ class DataManager:
                 year
         """
         return self.db.fetch_df_from_db(query)
+
+    def _get_homologous_ytd_cogs_df(self, month: int) -> pd.DataFrame:
+        query = f"""
+            SELECT
+                strftime('%Y', date) AS year,
+                SUM(amount) AS ytd_total_cogs
+            FROM
+                expenses_fact
+            LEFT JOIN
+                expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
+            WHERE
+                expenses_categories_dim.name = 'COGS'
+                AND strftime('%m', date) <= '{month:02d}'
+                AND strftime('%m', date) >= '01'
+            GROUP BY
+                year
+        """
+        return self.db.fetch_df_from_db(query)
+
+    def get_homologous_ytd_df(self, year_month: str) -> pd.DataFrame:
+        _, month = self.date_utils.decompose_year_month(year_month)
+        df_sales = self._get_homologous_ytd_sales_df(month)
+        df_expenses = self._get_homologous_ytd_expenses_df(month)
+        return pd.merge(df_sales, df_expenses, on="year", how="left")
 
     def _get_homologous_ytd_expenses_df(self, month: int) -> pd.DataFrame:
         query = f"""

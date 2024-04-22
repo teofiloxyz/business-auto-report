@@ -115,6 +115,26 @@ class Charts:
         self._config_chart_tags(title=title)
         return self._save_chart()
 
+    def get_homologous_ytd_gross_chart(self, df: pd.DataFrame) -> str:
+        self._config_chart_theme(soft_grid=True)
+        sns.lineplot(
+            data=df, x="year", y="ytd_total_sales", label="YTD Total Sales"
+        )
+        sns.lineplot(
+            data=df, x="year", y="ytd_total_cogs", label="YTD Total COGS"
+        )
+        plt.fill_between(
+            df["year"], df["ytd_total_sales"], color="orange", alpha=0.5
+        )
+        plt.fill_between(
+            df["year"], df["ytd_total_cogs"], color="blue", alpha=0.5
+        )
+        title = (
+            "Homologous YTD of Total Sales and Cost of Sold Goods of All Years"
+        )
+        self._config_chart_tags(title=title, xlabel="Year")
+        return self._save_chart()
+
     def get_homologous_ytd_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme(soft_grid=True)
         sns.lineplot(

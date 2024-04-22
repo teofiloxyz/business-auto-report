@@ -35,6 +35,11 @@ class BusinessAutoReport:
         charts_paths.append(self.ch.get_12_months_daily_expenses_chart(df_12m))
         charts_paths.append(self.ch.get_12_months_daily_ibt_chart(df_12m))
 
+        df_hom_ytd_g = self.dm.get_homologous_ytd_gross_df(year_month)
+        charts_paths.append(
+            self.ch.get_homologous_ytd_gross_chart(df_hom_ytd_g)
+        )
+
         df_hom_ytd = self.dm.get_homologous_ytd_df(year_month)
         charts_paths.append(self.ch.get_homologous_ytd_chart(df_hom_ytd))
 
