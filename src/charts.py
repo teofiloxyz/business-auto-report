@@ -136,6 +136,13 @@ class Charts:
         self._config_chart_tags(title=title)
         return self._save_chart()
 
+    def get_total_sales_by_product_chart(self, df: pd.DataFrame) -> str:
+        self._config_chart_theme()
+        sns.barplot(data=df, x="total_sales", y="product", palette="Blues_r")
+        title = "Total Revenue of the Month Decomposed By Product"
+        self._config_chart_tags(title=title, legend=False)
+        return self._save_chart()
+
     def _config_chart_theme(self, soft_grid: bool = False) -> None:
         plt.figure(figsize=(11, 8.5))
         rc = {"grid.alpha": 0.2 if soft_grid else 1}
@@ -143,13 +150,18 @@ class Charts:
         plt.style.use("dark_background")
 
     def _config_chart_tags(
-        self, title: str, xlabel: str = "Year-Month", ylabel: str = "Amount"
+        self,
+        title: str,
+        xlabel: str = "Year-Month",
+        ylabel: str = "Amount",
+        legend: bool = True,
     ) -> None:
         plt.title(title)
         plt.xlabel(xlabel)
         plt.xticks(rotation=45)
         plt.ylabel(ylabel)
-        plt.legend(title="Legend")
+        if legend:
+            plt.legend(title="Legend")
 
     def _save_chart(self) -> str:
         ch_path = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False).name

@@ -207,3 +207,15 @@ class DataManager:
             GROUP by year
         """
         return self.db.fetch_df_from_db(query)
+
+    def get_total_sales_by_product_df(self, year_month: str) -> pd.DataFrame:
+        query = f"""
+            SELECT SUM(unit_price * quantity) AS total_sales,
+            name as product
+            FROM sales_fact
+            LEFT JOIN products_dim ON sales_fact.product_id = products_dim.product_id
+            WHERE strftime('%Y-%m', date) = '{year_month}'
+            GROUP by product
+            ORDER BY total_sales DESC
+        """
+        return self.db.fetch_df_from_db(query)

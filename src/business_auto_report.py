@@ -38,6 +38,9 @@ class BusinessAutoReport:
         df_hom_ytd = self.dm.get_homologous_ytd_df(year_month)
         charts_paths.append(self.ch.get_homologous_ytd_chart(df_hom_ytd))
 
+        df_by_pro = self.dm.get_total_sales_by_product_df(year_month)
+        charts_paths.append(self.ch.get_total_sales_by_product_chart(df_by_pro))
+
         pdf_rep.generate_report(charts_paths)
 
     def _choose_year_month(self) -> str:
