@@ -41,6 +41,11 @@ class BusinessAutoReport:
         df_by_pro = self.dm.get_total_sales_by_product_df(year_month)
         charts_paths.append(self.ch.get_total_sales_by_product_chart(df_by_pro))
 
+        df_by_cat = self.dm._get_total_expenses_by_category_df(year_month)
+        charts_paths.append(
+            self.ch.get_total_expenses_by_category_chart(df_by_cat)
+        )
+
         pdf_rep.generate_report(charts_paths)
 
     def _choose_year_month(self) -> str:

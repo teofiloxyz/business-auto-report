@@ -143,6 +143,13 @@ class Charts:
         self._config_chart_tags(title=title, legend=False)
         return self._save_chart()
 
+    def get_total_expenses_by_category_chart(self, df: pd.DataFrame) -> str:
+        self._config_chart_theme()
+        sns.barplot(data=df, x="total_expenses", y="category", palette="Reds_r")
+        title = "Total Expenses of the Month Decomposed By Category"
+        self._config_chart_tags(title=title, legend=False)
+        return self._save_chart()
+
     def _config_chart_theme(self, soft_grid: bool = False) -> None:
         plt.figure(figsize=(11, 8.5))
         rc = {"grid.alpha": 0.2 if soft_grid else 1}

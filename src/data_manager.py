@@ -219,3 +219,17 @@ class DataManager:
             ORDER BY total_sales DESC
         """
         return self.db.fetch_df_from_db(query)
+
+    def _get_total_expenses_by_category_df(
+        self, year_month: str
+    ) -> pd.DataFrame:
+        query = f"""
+            SELECT SUM(amount) AS total_expenses,
+            name as category
+            FROM expenses_fact
+            LEFT JOIN expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
+            WHERE strftime('%Y-%m', date) = '{year_month}'
+            GROUP by category
+            ORDER BY total_expenses DESC
+        """
+        return self.db.fetch_df_from_db(query)
