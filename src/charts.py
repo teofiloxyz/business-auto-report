@@ -133,21 +133,25 @@ class Charts:
             df["year"], df["ytd_total_expenses"], color="blue", alpha=0.5
         )
         title = "Homologous YTD of Total Sales and Expenses of All Years"
-        self._config_chart_tags(title=title)
+        self._config_chart_tags(title=title, xlabel="Year")
         return self._save_chart()
 
     def get_total_sales_by_product_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
         sns.barplot(data=df, x="total_sales", y="product", palette="Blues_r")
         title = "Total Revenue of the Month Decomposed By Product"
-        self._config_chart_tags(title=title, legend=False)
+        self._config_chart_tags(
+            title=title, xlabel="Amount", ylabel="Product", legend=False
+        )
         return self._save_chart()
 
     def get_total_expenses_by_category_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
         sns.barplot(data=df, x="total_expenses", y="category", palette="Reds_r")
         title = "Total Expenses of the Month Decomposed By Category"
-        self._config_chart_tags(title=title, legend=False)
+        self._config_chart_tags(
+            title=title, xlabel="Amount", ylabel="Category", legend=False
+        )
         return self._save_chart()
 
     def _config_chart_theme(self, soft_grid: bool = False) -> None:
