@@ -49,10 +49,10 @@ class Charts:
         sns.barplot(
             data=df,
             x="year_month",
-            y="average_daily_ibt",
+            y="average_daily_IBT",
             palette="summer",
         )
-        past_3_months_average = df["average_daily_ibt"][:-1].mean()
+        past_3_months_average = df["average_daily_IBT"][:-1].mean()
         plt.axhline(
             y=past_3_months_average,
             color="cyan",
@@ -100,10 +100,10 @@ class Charts:
         sns.barplot(
             data=df,
             x="year_month",
-            y="average_daily_ibt",
+            y="average_daily_IBT",
             palette="summer",
         )
-        past_11_months_average = df["average_daily_ibt"][:-1].mean()
+        past_11_months_average = df["average_daily_IBT"][:-1].mean()
         plt.axhline(
             y=past_11_months_average,
             color="cyan",
@@ -121,13 +121,13 @@ class Charts:
             data=df, x="year", y="ytd_total_sales", label="YTD Total Sales"
         )
         sns.lineplot(
-            data=df, x="year", y="ytd_total_cogs", label="YTD Total COGS"
+            data=df, x="year", y="ytd_total_COGS", label="YTD Total COGS"
         )
         plt.fill_between(
             df["year"], df["ytd_total_sales"], color="orange", alpha=0.5
         )
         plt.fill_between(
-            df["year"], df["ytd_total_cogs"], color="blue", alpha=0.5
+            df["year"], df["ytd_total_COGS"], color="blue", alpha=0.5
         )
         title = (
             "Homologous YTD of Total Sales and Cost of Sold Goods of All Years"

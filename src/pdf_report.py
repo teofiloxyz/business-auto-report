@@ -32,11 +32,11 @@ class PDFReport:
             f"This month, the business achieved € {month_ovr['sales']:,.2f} "
             f"in sales and incurred € {month_ovr['expenses']:,.2f} in expenses. "
             f"With a gross profit of € {month_ovr['gross']:,.2f} "
-            f"({month_ovr['gross_mg']:.2f} % of margin) "
+            f"({month_ovr['gross_mg']:.2f}% of margin) "
             f"and EBITDA totaling € {month_ovr['EBITDA']:,.2f} "
-            f"({month_ovr['EBITDA_mg']:.2f} % of margin), "
+            f"({month_ovr['EBITDA_mg']:.2f}% of margin), "
             f"the income before taxes amounted to € {month_ovr['IBT']:,.2f} "
-            f"({month_ovr['IBT_mg']:.2f} % of margin). "
+            f"({month_ovr['IBT_mg']:.2f}% of margin). "
         )
         self.text_report.add_paragraph(paragraph)
 
@@ -44,8 +44,10 @@ class PDFReport:
         self, homologous_pf: Dict[str, float]
     ) -> None:
         paragraph = (
-            f"This month total sales performed {homologous_pf['sales']:.2f}%, "
+            f"This month, total sales performed {homologous_pf['sales']:.2f}%, "
             f"total expenses {homologous_pf['expenses']:.2f}%, "
+            f"gross profit {homologous_pf['gross']:.2f}%, "
+            f"EBITDA {homologous_pf['EBITDA']:.2f}%, "
             f"and income before taxes {homologous_pf['IBT']:.2f}%, "
             "compared to the average of the previous three years."
         )
@@ -53,8 +55,10 @@ class PDFReport:
 
     def add_in_chain_performance(self, in_chain_pf: Dict[str, float]) -> None:
         paragraph = (
-            f"This month total sales performed {in_chain_pf['sales']:.2f}%, "
+            f"This month, total sales performed {in_chain_pf['sales']:.2f}%, "
             f"total expenses {in_chain_pf['expenses']:.2f}%, "
+            f"gross profit {in_chain_pf['gross']:.2f}%, "
+            f"EBITDA {in_chain_pf['EBITDA']:.2f}%, "
             f"and income before taxes {in_chain_pf['IBT']:.2f}%, "
             "compared to the previous month."
         )

@@ -35,6 +35,8 @@ class Database:
 
 
 class DataManager:
+    """Didn't refactor the SQL queries for readability reasons"""
+
     def __init__(self) -> None:
         self.db = Database()
         self.date_utils = DateUtils()
@@ -114,13 +116,13 @@ class DataManager:
         return self.db.fetch_df_from_db(query)
 
     def get_homologous_performance(self, year_month: str) -> Dict[str, float]:
-        """Didn't refactor the SQL queries for readability reasons"""
-
         df = self.get_homologous_df(year_month)
         return {
             "sales": self._get_perf_percentage(df, "average_daily_sales"),
             "expenses": self._get_perf_percentage(df, "average_daily_expenses"),
-            "IBT": self._get_perf_percentage(df, "average_daily_ibt"),
+            "gross": self._get_perf_percentage(df, "average_daily_gross"),
+            "EBITDA": self._get_perf_percentage(df, "average_daily_EBITDA"),
+            "IBT": self._get_perf_percentage(df, "average_daily_IBT"),
         }
 
     def get_homologous_df(self, year_month: str) -> pd.DataFrame:
@@ -153,9 +155,13 @@ class DataManager:
         query = f"""
             SELECT
                 strftime('%Y-%m', date) AS year_month,
-                SUM(amount) AS total_expenses
+                SUM(amount) AS total_expenses,
+                SUM(CASE WHEN name = 'COGS' THEN amount ELSE 0 END) AS total_COGS,
+                SUM(CASE WHEN name IN ('Depreciation', 'Interest') THEN amount ELSE 0 END) AS total_dep_int
             FROM
                 expenses_fact
+            LEFT JOIN
+                expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
             WHERE
                 strftime('%Y', date) >= '{year-3}'
                 AND strftime('%Y', date) <= '{year}'
@@ -172,9 +178,21 @@ class DataManager:
         df["num_days"] = df["year_month"].apply(
             lambda x: self.date_utils.get_num_days(x)
         )
+
         df["average_daily_sales"] = df["total_sales"] / df["num_days"]
         df["average_daily_expenses"] = df["total_expenses"] / df["num_days"]
-        df["average_daily_ibt"] = (
+        df["average_daily_COGS"] = df["total_COGS"] / df["num_days"]
+        df["average_daily_dep_int"] = df["total_dep_int"] / df["num_days"]
+
+        df["average_daily_gross"] = (
+            df["average_daily_sales"] - df["average_daily_COGS"]
+        )
+        df["average_daily_EBITDA"] = (
+            df["average_daily_sales"]
+            - df["average_daily_expenses"]
+            + df["average_daily_dep_int"]
+        )
+        df["average_daily_IBT"] = (
             df["average_daily_sales"] - df["average_daily_expenses"]
         )
         return df
@@ -189,7 +207,9 @@ class DataManager:
         return {
             "sales": self._get_perf_percentage(df, "average_daily_sales"),
             "expenses": self._get_perf_percentage(df, "average_daily_expenses"),
-            "IBT": self._get_perf_percentage(df, "average_daily_ibt"),
+            "gross": self._get_perf_percentage(df, "average_daily_gross"),
+            "EBITDA": self._get_perf_percentage(df, "average_daily_EBITDA"),
+            "IBT": self._get_perf_percentage(df, "average_daily_IBT"),
         }
 
     def get_12_months_df(self, year_month: str) -> pd.DataFrame:
@@ -219,9 +239,13 @@ class DataManager:
         query = f"""
             SELECT
                 strftime('%Y-%m', date) AS year_month,
-                SUM(amount) AS total_expenses
+                SUM(amount) AS total_expenses,
+                SUM(CASE WHEN name = 'COGS' THEN amount ELSE 0 END) AS total_COGS,
+                SUM(CASE WHEN name IN ('Depreciation', 'Interest') THEN amount ELSE 0 END) AS total_dep_int
             FROM
                 expenses_fact
+            LEFT JOIN
+                expenses_categories_dim ON expenses_fact.category_id = expenses_categories_dim.category_id
             WHERE
                 strftime('%Y-%m', date) > '{year-1}-{month:02d}'
                 AND strftime('%Y-%m', date) <= '{year}-{month:02d}'
@@ -257,7 +281,7 @@ class DataManager:
         query = f"""
             SELECT
                 strftime('%Y', date) AS year,
-                SUM(amount) AS ytd_total_cogs
+                SUM(amount) AS ytd_total_COGS
             FROM
                 expenses_fact
             LEFT JOIN
