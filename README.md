@@ -3,6 +3,9 @@
 ## Introduction
 The **Business Auto Report** Python script is a showcase data analysis project. It's designed to effortlessly generate comprehensive PDF reports based on the business data. The generated reports include textual information and several charts for a specified "year-month". The database is populated with dummy data for demonstration purposes.
 
+![Chart example](/images/chart_example.jpg)
+*Chart example of generated report.*
+
 ## Tools Used
 
 - **Python 3**
