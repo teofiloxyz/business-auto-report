@@ -14,7 +14,12 @@ class Charts:
     def get_homologous_daily_sales_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
         sns.barplot(
-            data=df, x="year_month", y="average_daily_sales", palette="winter"
+            data=df,
+            x="year_month",
+            y="average_daily_sales",
+            hue="year_month",
+            palette="winter",
+            legend=False,
         )
         past_3_months_average = df["average_daily_sales"][:-1].mean()
         plt.axhline(
@@ -32,7 +37,9 @@ class Charts:
             data=df,
             x="year_month",
             y="average_daily_expenses",
+            hue="year_month",
             palette="spring",
+            legend=False,
         )
         past_3_months_average = df["average_daily_expenses"][:-1].mean()
         plt.axhline(
@@ -50,7 +57,9 @@ class Charts:
             data=df,
             x="year_month",
             y="average_daily_EBT",
+            hue="year_month",
             palette="summer",
+            legend=False,
         )
         past_3_months_average = df["average_daily_EBT"][:-1].mean()
         plt.axhline(
@@ -65,7 +74,12 @@ class Charts:
     def get_12_months_daily_sales_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
         sns.barplot(
-            data=df, x="year_month", y="average_daily_sales", palette="winter"
+            data=df,
+            x="year_month",
+            y="average_daily_sales",
+            hue="year_month",
+            palette="winter",
+            legend=False,
         )
         past_11_months_average = df["average_daily_sales"][:-1].mean()
         plt.axhline(
@@ -83,7 +97,9 @@ class Charts:
             data=df,
             x="year_month",
             y="average_daily_expenses",
+            hue="year_month",
             palette="spring",
+            legend=False,
         )
         past_11_months_average = df["average_daily_expenses"][:-1].mean()
         plt.axhline(
@@ -101,7 +117,9 @@ class Charts:
             data=df,
             x="year_month",
             y="average_daily_EBT",
+            hue="year_month",
             palette="summer",
+            legend=False,
         )
         past_11_months_average = df["average_daily_EBT"][:-1].mean()
         plt.axhline(
@@ -158,7 +176,14 @@ class Charts:
 
     def get_total_sales_by_product_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
-        sns.barplot(data=df, x="total_sales", y="product", palette="Blues_r")
+        sns.barplot(
+            data=df,
+            x="total_sales",
+            y="product",
+            hue="total_sales",
+            palette="Blues",
+            legend=False,
+        )
         title = "Total Revenue of the Month Decomposed By Product"
         self._config_chart_tags(
             title=title, xlabel="Amount", ylabel="Product", legend=False
@@ -167,7 +192,14 @@ class Charts:
 
     def get_total_expenses_by_category_chart(self, df: pd.DataFrame) -> str:
         self._config_chart_theme()
-        sns.barplot(data=df, x="total_expenses", y="category", palette="Reds_r")
+        sns.barplot(
+            data=df,
+            x="total_expenses",
+            y="category",
+            hue="total_expenses",
+            palette="Reds",
+            legend=False,
+        )
         title = "Total Expenses of the Month Decomposed By Category"
         self._config_chart_tags(
             title=title, xlabel="Amount", ylabel="Category", legend=False
