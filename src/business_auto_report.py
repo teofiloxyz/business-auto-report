@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Callable, List, Optional, Tuple
+
+from tqdm import tqdm
 
 from .charts import Charts
 from .data_manager import DataManager
@@ -11,47 +13,13 @@ class BusinessAutoReport:
         self.dm = DataManager()
 
     def generate_report(self, year_month: Optional[str] = None) -> None:
-        if not year_month:
-            year_month = self._choose_year_month()
-
-        print(f"Generating report for {year_month}...")
+        year_month = year_month or self._choose_year_month()
         pdf_rep = PDFReport(year_month)
+        gen_steps = self._get_generation_steps(year_month, pdf_rep)
 
-        month_ovr = self.dm.get_month_overview(year_month)
-        pdf_rep.add_month_overview(month_ovr)
-        homologous_pf = self.dm.get_homologous_performance(year_month)
-        pdf_rep.add_homologous_performance(homologous_pf)
-        in_chain_pf = self.dm.get_in_chain_performance(year_month)
-        pdf_rep.add_in_chain_performance(in_chain_pf)
-
-        charts_paths = []
-        df_hom = self.dm.get_homologous_df(year_month)
-        charts_paths.append(self.ch.get_homologous_daily_sales_chart(df_hom))
-        charts_paths.append(self.ch.get_homologous_daily_expenses_chart(df_hom))
-        charts_paths.append(self.ch.get_homologous_daily_ebt_chart(df_hom))
-
-        df_12m = self.dm.get_12_months_df(year_month)
-        charts_paths.append(self.ch.get_12_months_daily_sales_chart(df_12m))
-        charts_paths.append(self.ch.get_12_months_daily_expenses_chart(df_12m))
-        charts_paths.append(self.ch.get_12_months_daily_ebt_chart(df_12m))
-
-        df_hom_ytd_g = self.dm.get_homologous_ytd_gross_df(year_month)
-        charts_paths.append(
-            self.ch.get_homologous_ytd_gross_chart(df_hom_ytd_g)
-        )
-
-        df_hom_ytd = self.dm.get_homologous_ytd_df(year_month)
-        charts_paths.append(self.ch.get_homologous_ytd_chart(df_hom_ytd))
-
-        df_by_pro = self.dm.get_total_sales_by_product_df(year_month)
-        charts_paths.append(self.ch.get_total_sales_by_product_chart(df_by_pro))
-
-        df_by_cat = self.dm.get_total_expenses_by_category_df(year_month)
-        charts_paths.append(
-            self.ch.get_total_expenses_by_category_chart(df_by_cat)
-        )
-
-        pdf_rep.generate_report(charts_paths)
+        print(f"Generating report for {year_month}.")
+        self._execute_generation_steps(gen_steps)
+        print(f"Report for {year_month} is complete.")
 
     def _choose_year_month(self) -> str:
         first_ym = self.dm.get_first_db_year_month()
@@ -69,3 +37,105 @@ class BusinessAutoReport:
             if first_ym <= year_month <= lastest_ym:
                 return year_month
             print(f"Invalid year-month. Try between {first_ym} & {lastest_ym}")
+
+    def _get_generation_steps(
+        self, year_month: str, pdf_rep: PDFReport
+    ) -> List[Tuple[str, Callable]]:
+        return [
+            (
+                "Adding month overview",
+                lambda: pdf_rep.add_month_overview(
+                    self.dm.get_month_overview(year_month)
+                ),
+            ),
+            (
+                "Adding homologous performance",
+                lambda: pdf_rep.add_homologous_performance(
+                    self.dm.get_homologous_performance(year_month)
+                ),
+            ),
+            (
+                "Adding in-chain performance",
+                lambda: pdf_rep.add_in_chain_performance(
+                    self.dm.get_in_chain_performance(year_month)
+                ),
+            ),
+            (
+                "Getting homologous daily sales chart",
+                lambda: self.ch.get_homologous_daily_sales_chart(
+                    self.dm.get_homologous_df(year_month)
+                ),
+            ),
+            (
+                "Getting homologous daily expenses chart",
+                lambda: self.ch.get_homologous_daily_expenses_chart(
+                    self.dm.get_homologous_df(year_month)
+                ),
+            ),
+            (
+                "Getting homologous daily EBT chart",
+                lambda: self.ch.get_homologous_daily_ebt_chart(
+                    self.dm.get_homologous_df(year_month)
+                ),
+            ),
+            (
+                "Getting 12 months daily sales chart",
+                lambda: self.ch.get_12_months_daily_sales_chart(
+                    self.dm.get_12_months_df(year_month)
+                ),
+            ),
+            (
+                "Getting 12 months daily expenses chart",
+                lambda: self.ch.get_12_months_daily_expenses_chart(
+                    self.dm.get_12_months_df(year_month)
+                ),
+            ),
+            (
+                "Getting 12 months daily EBT chart",
+                lambda: self.ch.get_12_months_daily_ebt_chart(
+                    self.dm.get_12_months_df(year_month)
+                ),
+            ),
+            (
+                "Getting homologous YTD gross chart",
+                lambda: self.ch.get_homologous_ytd_gross_chart(
+                    self.dm.get_homologous_ytd_gross_df(year_month)
+                ),
+            ),
+            (
+                "Getting homologous YTD chart",
+                lambda: self.ch.get_homologous_ytd_chart(
+                    self.dm.get_homologous_ytd_df(year_month)
+                ),
+            ),
+            (
+                "Getting total sales by product chart",
+                lambda: self.ch.get_total_sales_by_product_chart(
+                    self.dm.get_total_sales_by_product_df(year_month)
+                ),
+            ),
+            (
+                "Getting total expenses by category chart",
+                lambda: self.ch.get_total_expenses_by_category_chart(
+                    self.dm.get_total_expenses_by_category_df(year_month)
+                ),
+            ),
+            (
+                "Appending charts into final PDF",
+                lambda: pdf_rep.generate_report(self.charts_paths),
+            ),
+        ]
+
+    def _execute_generation_steps(
+        self, gen_steps: List[Tuple[str, Callable]]
+    ) -> None:
+        """Increment the progress bar while executing the steps"""
+
+        self.charts_paths = []
+        with tqdm(total=len(gen_steps), desc="Generating Report") as pbar:
+            for description, step_func in gen_steps:
+                pbar.set_description(description)
+                output = step_func()
+                if output:
+                    self.charts_paths.append(output)
+                pbar.update(1)

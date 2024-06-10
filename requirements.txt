@@ -3,3 +3,4 @@ matplotlib
 seaborn
 reportlab
 PyMuPDF
+tqdm
