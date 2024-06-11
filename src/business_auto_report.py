@@ -1,3 +1,5 @@
+import platform
+import subprocess
 from typing import Callable, List, Optional, Tuple
 
 from tqdm import tqdm
@@ -20,6 +22,11 @@ class BusinessAutoReport:
         print(f"Generating report for {year_month}.")
         self._execute_generation_steps(gen_steps)
         print(f"Report for {year_month} is complete.")
+
+        prompt = "Do you want to open the report? [Y/n] "
+        if input(prompt) in ("", "Y", "y"):
+            print("Opening the report.")
+            self._open_pdf(pdf_rep.pdf_path)
 
     def _choose_year_month(self) -> str:
         first_ym = self.dm.get_first_db_year_month()
@@ -139,3 +146,19 @@ class BusinessAutoReport:
                 if output:
                     self.charts_paths.append(output)
                 pbar.update(1)
+
+    def _open_pdf(self, file_path: str) -> None:
+        """
+        Opens a PDF file with the system's default PDF viewer.
+        I only tested this on Linux.
+        """
+
+        try:
+            if platform.system() == "Windows":
+                subprocess.run(["start", file_path], shell=True)
+            elif platform.system() == "Darwin":  # MacOS
+                subprocess.run(("open", file_path))
+            else:  # Linux and other Unix-like systems
+                subprocess.run(("xdg-open", file_path))
+        except Exception as e:
+            print(f"An error occurred while opening the PDF: {e}")
