@@ -3,11 +3,6 @@
 ## Introduction
 **Business Auto Report** is a financial data analysis showcase app. It's designed to effortlessly generate comprehensive PDF reports for a specified month based on business data.
 
-<br> <!-- Line break -->
-
-![Chart example](/images/chart_example.jpg)
-*Chart example of generated report.*
-
 
 ## Tools Used
 - **Python**: For creating the app.
@@ -22,7 +17,7 @@
 The generated reports include textual information and several charts for a specified "year-month". The database is populated with dummy data for demonstration purposes. Access some generated report examples in the [docs folder](/docs/).
 
 
-## Usage
+## Installation & Usage
 1. Clone this repository.
 2. Install all requirements.
 3. Run the app.
