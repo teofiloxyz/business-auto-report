@@ -4,6 +4,11 @@
 **Business Auto Report** is a financial data analysis showcase app. It's designed to effortlessly generate comprehensive PDF reports for a specified month based on business data.
 
 
+## Demonstration
+![Demo](/images/demo.gif)
+*Animated GIF showing a demo of the app.*
+
+
 ## Tools Used
 - **Python**: For creating the app.
 - **SQLite3**: For database management, data manipulation and data analysis. Explore the database design [here](/sql/tables_creation.sql).
