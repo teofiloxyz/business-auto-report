@@ -1,7 +1,7 @@
 # Business Auto Report 📊
 
 ## Introduction
-**Business Auto Report** is a financial data analysis showcase app. It's designed to effortlessly generate comprehensive PDF reports for a specified month based on business data.
+**Business Auto Report** is a financial data analysis showcase app. It's designed to effortlessly generate PDF reports for a specified month based on business data.
 
 
 ## Demonstration
